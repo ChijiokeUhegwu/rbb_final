@@ -4,8 +4,7 @@
 
 ## Overview
 
-This project focuses on **HIV/AIDS awareness, misconceptions, and stigma** as a critical public health issue using data from the 2018 Demographic and Health Survey (DHS) by the Nigeria Population Commission.  
-The report explores how gaps in knowledge and persistent stigma continue to affect prevention, testing, treatment uptake, and the overall well-being of people living with HIV/AIDS. 
+This project focuses on **HIV/AIDS awareness, misconceptions, and stigma** as a critical public health issue using data from the 2018 Demographic and Health Survey (DHS) by the Nigeria Population Commission.  The report explores how gaps in knowledge and persistent stigma continue to affect prevention, testing, treatment uptake, and the overall well-being of people living with HIV/AIDS. 
 
 ## Objectives
 
