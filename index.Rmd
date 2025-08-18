@@ -1,0 +1,496 @@
+---
+title: "Assessing HIV Awareness, Prevention Practices, and Stigma in Nigeria: Insights from the Demographic and Health Survey"
+output:
+  prettydoc::html_pretty:
+    theme: architect
+    toc: true
+author: "CHIJIOKE C. UHEGWU"
+date: "2025-06-20"
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r setup, echo = FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE)
+```
+
+```{r}
+# Load packages
+pacman::p_load(
+  janitor, # data analysis utilities
+  here, # force rmds to use the project folder as working directory
+  haven, # for reading in stata files
+  tidyverse, # for everything!
+  dlookr, # to check for missing values
+  gt, # for tables display
+  scales, # for formatting numbers
+  plotly
+  )
+```
+
+```{r}
+hiv_raw <- haven::read_dta(here("data/Nigeria_IR7BDT/NGIR7BFL.DTA"),
+                                col_select = c(v106, v750, v754cp, v754dp, v754jp, v754wp, v756, v774a, v774b, v774c, v823, v824, v825, v857a, v857b, v857c, v857d, v858))
+
+```
+
+# 1.0 Introduction
+
+HIV/AIDS remains one of the most pressing public health challenges globally, especially in sub-Saharan Africa, where the disease burden is highest. In 2015, 36.7 million people were reported to be living with HIV/AIDS globally, of which 25.6 million (69.8% globally) are from sub-Saharan Africa alone, accounting for two-thirds of the recent overall world HIV infections and more than 70 percent of all AIDS-related deaths [1]. In Nigeria, an estimated 1.7 million people were living with HIV in 2020, with over 86,000 people newly infected. Although the global rates of HIV have remained consistent over time, Nigeria has the second-highest number of people living with HIV and contributes to 9% of the global burden of HIV/AIDS [2]. Despite progress in treatment and prevention through antiretroviral therapy (ART), public health campaigns, and international support, the fight against the epidemic remains hindered by misconceptions, stigma, and gaps in knowledge.
+
+This project explores data from the 2018 Demographic and Health Survey (DHS) by the Nigeria Population Commission to assess the knowledge, awareness, and social attitudes toward HIV among a representative population sample. Using a selection of variables related to HIV awareness and prevention, transmission myths, stigma, and mother-to-child transmission, the goal is to uncover insights into how informed the population is, where misinformation still exists, and what attitudes may create barriers to effective prevention and care.
+
+Using data visualization and descriptive analysis, this project sheds light on:
+
+-   The level of public understanding about sexually transmitted infections, specifically HIV transmission and prevention
+
+-   Common myths and misconceptions that persist in communities and the role of education in this
+
+-   Attitudes toward people living with HIV (PLHIV), including stigma and discrimination
+
+-   Awareness of mother-to-child transmission and available preventative measures
+
+This analysis serves as a valuable resource for public health practitioners, policymakers, and educators, offering evidence-based insights that can inform targeted HIV interventions and community education strategies. This report is aimed at advocating for a society that is not only well-informed about HIV but also more compassionate and supportive toward those affected.
+
+```{r}
+#Rename the variables into intuitive names ----
+hiv_renamed <- 
+  hiv_raw %>%
+    rename(
+      highest_education = v106,
+      heard_of_sti = v750,
+      hiv_reduce_condom = v754cp,
+      hiv_reduce_one_partner = v754dp,
+      hiv_from_mosquito = v754jp,
+      hiv_from_food = v754wp,
+      healthy_person_hiv = v756,
+      hiv_trans_pregnancy = v774a,
+      hiv_trans_delivery = v774b,
+      hiv_trans_breastfeeding = v774c,
+      hiv_from_witchcraft = v823,
+      arv_to_prevent_mother_child = v824,
+      buy_from_hiv_vendor = v825,
+      children_with_hiv_in_school = v857a,
+      hiv_test_stigma = v857b,
+      gossip_about_hiv = v857c,
+      respect_loss_hiv = v857d,
+      afraid_saliva_hiv = v858
+    )
+
+# Convert the labelled data to regular factors ----
+hiv_clean <- 
+  hiv_renamed %>% haven::as_factor()
+```
+
+# 2.0 Methodology
+
+The analysis for this project was conducted entirely in **RStudio**. The following steps outline how the Demographic and Health Survey (DHS) HIV data was processed, explored, and visualized:
+
+**1️⃣ Data Import and Cleaning**
+
+-   The DHS dataset was originally in `.DTA` (Stata) format and was read into R using the `{haven}` package.
+-   The dataset was cleaned using functions from `{janitor}` to ensure consistent variable names and easy handling of missing values.
+-   The `{here}` package was used to reliably set the project’s working directory, ensuring that all file paths were relative to the project folder.
+
+**2️⃣ Variable Recoding and Renaming**
+
+-   Key variables relevant to HIV knowledge, prevention, misconceptions, mother-to-child transmission, and stigma were selected.
+-   Each variable was renamed to intuitive, descriptive names for easier interpretation during analysis. The renamed variable details are provided in *Appendix A* for reference.
+-   Categorical variables were recoded where necessary to ensure consistent response formats (e.g., “Yes”, “No”, “Don’t know”).
+
+**3️⃣ Exploratory Data Analysis and Visualization**
+
+-   Descriptive statistics and checks for missing values were performed using `{dlookr}`.
+-   The `{tidyverse}` suite was the main engine for data wrangling (`dplyr`), reshaping (`tidyr`), and visualization (`ggplot2`).
+-   Visualizations included bar plots, faceted plots, and histogram charts to uncover trends in HIV knowledge, misconceptions, and stigma.
+
+**4️⃣ Display Tables**
+
+-   Summary tables were produced using `{gt}`, which allowed for clean, publication-ready presentation of tabulated results, such as STI awareness by education level.
+
+**5️⃣ Reproducibility and Organization**
+
+-   The entire analysis was structured in a single R Markdown (`.Rmd`) file to ensure all code, outputs, and interpretations are integrated and reproducible.
+-   All visualizations and tables were directly embedded in the Markdown report, each accompanied by a short discussion of the results.
+
+# 3.0 Results and Discussion
+
+## 3.1 Awareness of Sexually Transmitted Infections (STIs)
+
+To understand the baseline awareness of STIs among respondents, the responses to the question "Have you ever heard of a sexually transmitted infection (STI)?" was examined. The results were visualized using a simple bar chart that counts the frequency of each response category (as shown on Figure 1). The visualization clearly shows that a large majority of respondents (about 39530) reported being aware of STIs. This indicates a relatively high level of basic awareness about the existence of STIs in the population surveyed. However, a notable minority of respondents (about 2291) answered “No”, highlighting a gap in public health communication that still needs to be addressed.
+
+This initial finding emphasizes the importance of continuing and expanding sexual health education efforts, especially targeting demographics or regions where awareness remains low.
+
+```{r}
+# 1. Awareness of STIs ----
+
+hiv_clean_count <- 
+  hiv_clean %>%
+  count(heard_of_sti)
+  
+  #visualize on ggplot
+hiv_clean_count_plot <- hiv_clean_count %>% 
+  ggplot(aes(x = heard_of_sti, y = n)) +
+  geom_col(fill = "steelblue") +
+  geom_text(aes(label = n), vjust = -0.1) +
+  labs(
+    title = "Figure 1: Awareness of Sexually Transmitted Infections (STIs)",
+    subtitle = "2018 Demographic and Health Survey, Nigeria Population Commission",
+    x = "Heard of STI",
+    y = "Number of Respondents"
+  ) +
+  theme_minimal() +
+  theme(panel.grid = element_blank(),
+        plot.title = element_text(size = 14, face = "bold", hjust = 0.2), 
+    plot.subtitle = element_text(size = 12, face = "italic", hjust = 0.4)
+    ) 
+
+hiv_clean_count_plot
+ggsave(hiv_clean_count_plot, file = here("images/sti_awareness.jpg"), width = 4, height = 2)
+```
+
+## 3.2 Awareness of STIs by Education Level
+
+Table 1 highlights the relationship between respondents’ education levels and their awareness of STIs. The results show a clear positive association: awareness increases markedly with higher levels of education. Among respondents with no formal education, about **89.7%** reported being aware of STIs. Awareness rises steadily through the educational strata, reaching **94.2%** for those with primary education, **97.5%** for respondents with secondary education, and peaking at **99.5%** among those with higher education.
+
+This strong gradient demonstrates the crucial role that education plays in improving health literacy and awareness of sexual health risks. These findings suggest that expanding access to education could help bridge knowledge gaps and support more informed decision-making related to STI and HIV prevention.
+
+```{r}
+# STIs awareness by education level ----
+awareness_table <- hiv_clean %>%
+  group_by(highest_education) %>%
+  summarise(
+    Respondents = n(),
+    Aware_of_STI = sum(heard_of_sti == "yes", na.rm = TRUE),
+    Percent_Aware = round((Aware_of_STI / Respondents) * 100, 1)
+  )
+
+# Summary table 
+awareness_table %>%
+  gt() %>%
+  tab_header(
+    title = md("**Table 1: Awareness of STIs by Education Level**") # bolden title
+  ) %>%
+  fmt_number(columns = vars(Percent_Aware), decimals = 1) %>%
+  cols_label(
+    highest_education = "Education Level",
+    Respondents = "Total Respondents",
+    Aware_of_STI = "Number Aware",
+    Percent_Aware = "% Aware"
+  )
+```
+
+## 3.3 Misconceptions about HIV Transmission by Education Level
+
+Figure 2 shows how beliefs in common HIV transmission misconceptions vary by respondents’ education levels. The misconceptions covered include beliefs that HIV can be transmitted through mosquito bites, sharing food, witchcraft or supernatural means, or that a healthy-looking person cannot have HIV.
+
+The chart shows that the surveyed population generally had a fair understanding of the common HIV transmission misconceptions that were covered. However, for respondents with no education, larger proportions believe myths such as HIV transmission through mosquito bites or sharing food, compared to those with secondary or higher education. The share of “don’t know” responses also declines as education level rises, suggesting that education equips individuals with both factual knowledge and the confidence to identify myths as incorrect.
+
+These findings point to an important policy takeaway: improving educational attainment and integrating comprehensive HIV education into curricula could significantly reduce misconceptions that perpetuate stigma and risky behaviors.
+
+```{r}
+# 2. HIV Transmission Misconceptions ----
+
+hiv_transmission <- hiv_clean %>%
+  # Keep columns of interest
+  select(hiv_from_mosquito, hiv_from_food, hiv_from_witchcraft, healthy_person_hiv, highest_education) %>%
+  #pivot only the myths responses columns and leave out highest education as a separate column for facet wrap
+  pivot_longer(
+    cols = c(hiv_from_mosquito, hiv_from_food, hiv_from_witchcraft, healthy_person_hiv),
+    names_to = "myth",
+    values_to = "response"
+  ) %>%
+  filter(!is.na(response)) %>%
+  mutate(myth = case_when(
+    myth == "hiv_from_mosquito" ~ "Mosquito transmission",
+    myth == "hiv_from_food" ~ "Sharing food",
+    myth == "hiv_from_witchcraft" ~ "Witchcraft or supernatural means",
+    myth == "healthy_person_hiv" ~ "Healthy-looking person can have HIV"
+  )) 
+
+# visualize hiv transmission misconceptions  
+
+hiv_transmission_plot <- 
+hiv_transmission %>%
+  # Pre-calculate percentages before plotting
+  count(highest_education, myth, response) %>%
+  group_by(highest_education, myth) %>%
+  mutate(percent = n / sum(n)) %>%
+  
+  #Plot the computed comparisons
+  ggplot(aes(x = response, y = percent, fill = response)) +
+  geom_col() +
+  facet_grid(highest_education ~ str_wrap(myth, width = 15.8)) +
+  labs(
+    title = "Figure 2: Misconceptions About HIV Transmission By Education Level",
+     subtitle = "2018 Demographic and Health Survey, Nigeria Population Commission",
+    x = "Response",
+    y = "Percentage of respondents",
+     fill = "Response"
+  ) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = seq(0, 1, 0.25)) +
+  theme_minimal() +
+   scale_fill_manual(values = c("no" = "tomato", "yes" = "#1f77b4", "don't know" = "grey")) +
+  theme(
+    strip.text.x = element_text(size = 10, face = "bold"),  # Modify myth labels
+    strip.text.y = element_text(size = 10, face = "bold", angle = 0),  # Modify education labels
+    axis.text.x = element_blank(),   # Remove x-axis text
+    axis.ticks.x = element_blank(),   # Remove x-axis ticks
+    panel.grid = element_blank(),  # removes all grid lines
+    panel.spacing.x = unit(0.5, "lines"),
+    plot.title = element_text(size = 14, face = "bold", hjust = 0.2), 
+    plot.subtitle = element_text(size = 12, face = "italic", hjust = 0.4)
+  ) 
+
+hiv_transmission_plot
+ggsave(hiv_transmission_plot, file = here("images/hiv_transmission.jpg"), width = 4, height = 2)
+
+```
+
+## 3.4 Knowledge of HIV Prevention Methods
+
+Figure 3 shows the respondents' knowledge of two widely recommended HIV prevention strategies: consistent condom use during sexual intercourse and having only one uninfected sexual partner who does not have another sexual partner. The plot indicates that a **majority of respondents recognize both methods as effective in reducing the risk of HIV transmission**, with notably high frequencies for “Yes” responses in both variables. Among the two, **consistent condom use** had slightly **lower recognition**, suggesting a potential gap in awareness or acceptance of this method.
+
+The findings demonstrate a positive trend in public awareness regarding HIV prevention, but also reveal the need for targeted educational efforts to reinforce consistent condom use as a key preventive behavior. This is particularly important given that condoms are not only effective but also accessible and affordable preventive tools.
+
+```{r}
+# 3. Knowledge of HIV Prevention Methods----
+hiv_prevention <- 
+  hiv_clean %>%
+  #select columns of interest and pivot
+  select(hiv_reduce_condom, hiv_reduce_one_partner) %>% 
+  pivot_longer(cols = everything(), names_to = "prevention_method", values_to = "response") %>%
+  filter(!is.na(response)) %>% 
+  mutate(prevention_method_labels = case_when(
+    prevention_method == "hiv_reduce_condom" ~ "Use of condom can reduce HIV risk",
+    prevention_method == "hiv_reduce_one_partner" ~ "One sex partner can reduce HIV risk",
+      TRUE ~ prevention_method
+  ))
+
+hiv_prevention_plot <- 
+  hiv_prevention %>% 
+count(prevention_method_labels, response) %>%
+  group_by(prevention_method_labels) %>%
+  mutate(percent = n / sum(n)) %>%
+  ungroup() %>%
+  #wrap the stigma_indicator_labels so it appears well on the plot
+  mutate(prevention_method_labels = 
+           stringr::str_wrap(prevention_method_labels, width = 25)) %>% 
+  
+  #visualize hiv stigma
+  ggplot(aes(x = response, y = percent, fill = response)) +
+  geom_col() +
+  facet_wrap(~prevention_method_labels) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  scale_fill_manual(values = c("no" = "tomato", "yes" = "#1f77b4", "don't know" = "grey")) +
+  labs(
+    title = "Figure 3: Respondents' Knowledge of HIV Prevention Methods",
+    subtitle = "2018 Demographic and Health Survey, Nigeria Population Commission",
+    x = "Response",
+    y = "Percentage of Respondents",
+    fill = "Response"
+  ) +
+  theme_minimal() +
+  theme(
+    strip.text.x = element_text(size = 10, face = "bold"),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(), # removes all grid tick
+    panel.grid = element_blank(),
+    plot.title = element_text(size = 14, face = "bold", hjust = 0.5), 
+    plot.subtitle = element_text(size = 12, face = "italic", hjust = 0.5)
+    
+  )
+ 
+hiv_prevention_plot
+ggsave(hiv_prevention_plot, file = here("images/hiv_prevention.jpg"), width = 4, height = 2)
+```
+
+## 3.5 Awareness of Mother-to-Child HIV Transmission and Its Prevention
+
+Figure 4 shows the examination of respondents' knowledge of how HIV can be transmitted from mother to child, as well as their awareness of preventive treatment options such as antiretroviral therapy (ARV). The results show that **awareness of mother-to-child transmission pathways is generally high**, with most respondents acknowledging the risks of HIV transmission during pregnancy, delivery, and breastfeeding. Notably, breastfeeding appears slightly well recognized as a transmission route compared to pregnancy and delivery.
+
+Furthermore, the data highlights that a large proportion of respondents are aware that ARVs can help prevent mother to child transmission, suggesting that public health messaging around prevention strategies has been relatively effective. However, the presence of any “No” or “Don’t know” responses in this context is still concerning, given the importance of timely intervention during the perinatal period.
+
+These findings reinforce the need for continued education and awareness campaigns, especially in communities where misconceptions or limited knowledge could hinder uptake of prevention programs. Ensuring that all expectant mothers understand both the risks and the availability of ARVs is essential to eliminating pediatric HIV.
+
+```{r}
+# 4. Mother to child awareness and prevention----
+mother_to_child <- hiv_clean %>%
+  #select variables of interest and pivot
+  select(hiv_trans_pregnancy, hiv_trans_delivery, hiv_trans_breastfeeding, arv_to_prevent_mother_child) %>%
+  pivot_longer(cols = everything(), names_to = "trans_route_and_prev", values_to = "response") %>%
+  
+  #handle NA values and rename row names (labels in plot)
+  filter(!is.na(response)) %>% 
+  mutate(trans_route_and_prev = case_when(
+    trans_route_and_prev == "arv_to_prevent_mother_child" ~ "Use arvs to prevent HIV transmission to baby",
+    trans_route_and_prev == "hiv_trans_breastfeeding" ~ "HIV can be transmitted through breastfeeding",
+    trans_route_and_prev == "hiv_trans_delivery" ~ "HIV can be transmitted during delivery",
+    trans_route_and_prev == "hiv_trans_pregnancy" ~ "HIV can be transmitted to child through pregnancy" 
+  )) 
+
+mother_to_child_plot <- 
+  mother_to_child %>% 
+  # count and group the stigma_indicator_labels and convert values to percent so that the plot will be easier to interpret
+  count(trans_route_and_prev, response) %>%
+  group_by(trans_route_and_prev) %>%
+  mutate(percent = n / sum(n)) %>%
+  ungroup() %>%
+  #wrap the stigma_indicator_labels so it appears well on the plot
+  mutate(trans_route_and_prev = stringr::str_wrap(trans_route_and_prev, width = 25)) %>% 
+  
+  #visualize hiv stigma
+  ggplot(aes(x = response, y = percent, fill = response)) +
+  geom_col() +
+  facet_wrap(~trans_route_and_prev) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  scale_fill_manual(values = c("no" = "tomato", "yes" = "#1f77b4", "don't know" = "grey")) +
+  labs(
+    title = "Figure 4: Awareness of Mother-to-Child HIV Transmission Routes\nand Prevention Using Antiretroviral drugs (ARVs)",
+    subtitle = "2018 Demographic and Health Survey, Nigeria Population Commission",
+    x = "Response",
+    y = "Percentage of respondents",
+    fill = "Response"
+  ) +
+  theme_minimal() +
+  theme(
+    strip.text.x = element_text(size = 10, face = "bold"),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(), # removes all grid tick
+    panel.grid = element_blank(),
+    plot.title = element_text(size = 14, face = "bold", hjust = 0.5), 
+    plot.subtitle = element_text(size = 12, face = "italic", hjust = 0.5)
+    
+  )
+
+  
+mother_to_child_plot
+ggsave(mother_to_child_plot, file = here("images/mother_to_child.jpg"), width = 4, height = 2)
+```
+
+## 3.6 HIV Stigma and Social Attitudes
+
+Figure 5 shows the various indicators of HIV-related stigma and discriminatory social attitudes across the surveyed population.
+
+The results reveal a mixed picture. On the positive side, a substantial majority of respondents believe that children living with HIV should be allowed to attend school with children who do not have HIV. This finding suggests a level of acceptance and inclusivity, especially in matters concerning children.
+
+However, other indicators paint a more concerning view of prevailing social attitudes:
+
+-   A significant number of respondents acknowledge that people with or believed to have HIV are gossiped about or lose respect in their communities.
+
+-   Many also believe that people hesitate to get tested for HIV due to fear of stigma, showing that societal judgment remains a barrier to early diagnosis and care.
+
+-   Alarmingly, some respondents still express fear of casual transmission, such as through saliva contact or buying food from an HIV-positive vendor—despite scientific evidence disproving these transmission routes.
+
+These misconceptions and negative perceptions reflect the ongoing challenge of HIV-related stigma, which can discourage individuals from seeking testing, disclosing their status, or accessing treatment. The fear of discrimination, both social and economic, continues to fuel silence and misinformation.
+
+To address these issues, stigma-reduction interventions must be integrated into public health programs. Education campaigns emphasizing accurate information about HIV transmission and the rights of people living with HIV are essential. In particular, targeted efforts in myth-busting and empathy-building can help transform social norms and foster a more supportive environment for all.
+
+```{r}
+# 5. HIV stigma and social attitudes
+
+hiv_stigma <- 
+  hiv_clean %>%
+  select(children_with_hiv_in_school, hiv_test_stigma, gossip_about_hiv, respect_loss_hiv, afraid_saliva_hiv, buy_from_hiv_vendor) %>%
+  pivot_longer(cols = everything(), names_to = "stigma_indicator", values_to = "response") %>%
+  filter(!is.na(response)) %>%
+  # drop the row where the respondent disclosed her status since this is not a response to the fear of saliva transmission itself
+  filter(!response == "says she has hiv") %>% 
+  mutate(response = case_when(
+    response == "don't know/not sure/depends" ~ "don't know",
+    TRUE ~ response)) %>% 
+  
+  # create a column for the stigma_indicator_labels that will be plotted later
+  mutate(stigma_indicator_labels = case_when(
+      stigma_indicator == "children_with_hiv_in_school" ~  "Children with HIV should attend school",
+      stigma_indicator == "hiv_test_stigma" ~ "People hesitate to test due to others' reactions",
+      stigma_indicator == "gossip_about_hiv" ~ "People talk badly about PLHIV",
+      stigma_indicator == "respect_loss_hiv" ~ "People with HIV lose respect",
+      stigma_indicator == "afraid_saliva_hiv" ~ "Afraid of saliva from HIV-positive person",
+      stigma_indicator == "buy_from_hiv_vendor" ~  "Buy from vendor with HIV",
+        TRUE ~ stigma_indicator
+    )
+           )
+
+hiv_stigma_plot <- 
+  hiv_stigma %>%
+  # count and group the stigma_indicator_labels and convert values to percent so that the plot will be easier to interpret
+  count(stigma_indicator_labels, response) %>%
+  group_by(stigma_indicator_labels) %>%
+  mutate(percent = n / sum(n)) %>%
+  ungroup() %>%
+  #wrap the stigma_indicator_labels so it appears well on the plot
+  mutate(stigma_indicator_labels = stringr::str_wrap(stigma_indicator_labels, width = 25)) %>% 
+  
+  #visualize hiv stigma
+  ggplot(aes(x = response, y = percent, fill = response)) +
+  geom_col() +
+  facet_wrap(~stigma_indicator_labels, ncol = 2) + # show the facet as 2 columns
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  scale_fill_manual(values = c("no" = "tomato", "yes" = "#1f77b4", "don't know" = "grey")) +
+  labs(
+    title = "Figure 5: Public Perception and Stigma Towards PLHIV",
+    subtitle = "2018 Demographic and Health Survey, Nigeria Population Commission",
+    x = "Response",
+    y = "Percentage of respondents",
+    fill = "Response"
+  ) +
+  theme_minimal() +
+  theme(
+    strip.text.x = element_text(size = 10, face = "bold"),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    panel.grid = element_blank(),
+    plot.title = element_text(size = 14, face = "bold", hjust = 0.5), 
+    plot.subtitle = element_text(size = 12, face = "italic", hjust = 0.5)
+  )
+
+
+hiv_stigma_plot
+ggsave(hiv_stigma_plot, file = here("images/hiv_stigma.jpg"), width = 4, height = 6)
+```
+
+# Conclusion
+
+This project explored key dimensions of HIV knowledge, prevention, transmission misconceptions, and stigma using data from a nationally representative Demographic and Health Survey (DHS). The visual analyses show that the population is generally aware of HIV and its primary prevention strategies, with encouragingly high awareness of STI risks and methods such as condom use and partner reduction.
+
+However, persistent misconceptions about HIV transmission — including beliefs that HIV can be spread through mosquito bites, sharing food, or witchcraft — still exist, especially among those with lower levels of formal education. The STI awareness tables and faceted charts by education level clearly illustrate how improved educational attainment is linked to better HIV knowledge and fewer misconceptions. Despite relatively good factual knowledge in some groups, stigma and discriminatory attitudes toward people living with HIV continue to present barriers to testing, treatment, and social acceptance. Many respondents still express fears about casual contact, like saliva exposure or buying food from a vendor living with HIV, reflecting the deep social roots of HIV-related stigma.
+
+Altogether, these findings emphasize that addressing HIV in the population requires more than just disseminating information. Closing the gap between knowledge and behavior will demand culturally resonant, targeted health messaging; integration of accurate HIV education at all schooling levels; community engagement to dismantle stigma; and policies that support equitable access to HIV testing, prevention, and treatment. Through the connection of improved knowledge with active stigma reduction and stronger health systems, stakeholders can better empower communities to protect themselves, support each other, and ultimately reduce the burden of HIV.
+
+# Acknowledgements 🙏
+
+This capstone project was completed as part of the Biological Weapons Convention Training in R programming for Outbreak Analytics and Disease Surveillance, facilitated by the Global Research and Analyses for Public Health (GRAPH) Network of the Institute of Global Health, University of Geneva.
+
+I am deeply grateful for the opportunity to participate in this training, which was made possible through the generous sponsorship of the **Norwegian Agency for Development Cooperation (Norad)**. I also acknowledge the valuable mentorship, support and learning resources provided by the GRAPH Network throughout the training period, which greatly contributed to the successful completion of this project.
+
+# References
+
+{1] Amuche, N. J., Emmanuel, E. I., & Innocent, N. E. (2017). HIV/AIDS in sub-Saharan Africa: current status, challenges and prospects. *Asian Pacific Journal of Tropical Disease*, 7(4), 239-256.
+
+[2] Bolarinwa, O. A., Ajayi, K. V., & Sah, R. K. (2022). Association between knowledge of Human Immunodeficiency Virus transmission and consistent condom use among sexually active men in Nigeria: An analysis of 2018 Nigeria Demographic Health Survey. *PLOS Global Public Health*, 2(3), e0000223.
+
+# Appendix A: Variable Recoding Table
+
+Below are the variables used in the analysis, with their original DHS codes and the renamed variables for clarity:
+
+| Renamed Variable | DHS Variable Code | Description |
+|-------------------|-------------------|----------------------------------|
+| highest_education | v106 | Highest education level |
+| heard_of_sti | v750 | Ever heard of a Sexually Transmitted Infection (STI) |
+| hiv_reduce_condom | v754cp | Knows condom use reduces HIV risk |
+| hiv_reduce_one_partner | v754dp | Knows having one faithful partner reduces HIV risk |
+| hiv_from_mosquito | v754jp | Belief that HIV can be spread by mosquito bites |
+| hiv_from_food | v754wp | Belief that HIV can be spread by sharing food |
+| healthy_person_hiv | v756 | Knows a healthy-looking person can have HIV |
+| hiv_trans_pregnancy | v774a | Knows HIV can be transmitted during pregnancy |
+| hiv_trans_delivery | v774b | Knows HIV can be transmitted during delivery |
+| hiv_trans_breastfeeding | v774c | Knows HIV can be transmitted by breastfeeding |
+| hiv_from_witchcraft | v823 | Belief that HIV can be contracted through witchcraft |
+| arv_to_prevent_mother_child | v824 | Knows ARVs can prevent mother-to-child transmission |
+| buy_from_hiv_vendor | v825 | Willingness to buy vegetables from vendor with HIV |
+| children_with_hiv_in_school | v857a | Belief children with HIV should attend school with others |
+| hiv_test_stigma | v857b | Hesitation to test due to fear of others’ reactions if positive |
+| gossip_about_hiv | v857c | Belief that people gossip about those with HIV |
+| respect_loss_hiv | v857d | Belief that people with HIV lose respect |
+| afraid_saliva_hiv | v858 | Fear of HIV transmission through contact with saliva |
