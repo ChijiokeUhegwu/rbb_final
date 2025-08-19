@@ -36,7 +36,9 @@ hiv_raw <- haven::read_dta(here("data/Nigeria_IR7BDT/NGIR7BFL.DTA"),
 
 # 1.0 Introduction
 
-HIV/AIDS remains one of the most pressing public health challenges globally, especially in sub-Saharan Africa, where the disease burden is highest. In 2015, 36.7 million people were reported to be living with HIV/AIDS globally, of which 25.6 million (69.8% globally) are from sub-Saharan Africa alone, accounting for two-thirds of the recent overall world HIV infections and more than 70 percent of all AIDS-related deaths [1]. In Nigeria, an estimated 1.7 million people were living with HIV in 2020, with over 86,000 people newly infected. Although the global rates of HIV have remained consistent over time, Nigeria has the second-highest number of people living with HIV and contributes to 9% of the global burden of HIV/AIDS [2]. Despite progress in treatment and prevention through antiretroviral therapy (ART), public health campaigns, and international support, the fight against the epidemic remains hindered by misconceptions, stigma, and gaps in knowledge.
+HIV/AIDS remains one of the most pressing public health challenges globally, especially in sub-Saharan Africa, where the disease burden is highest. In 2015, 36.7 million people were reported to be living with HIV/AIDS globally, of which 25.6 million (69.8% globally) are from sub-Saharan Africa alone, accounting for two-thirds of the recent overall world HIV infections and more than 70 percent of all AIDS-related deaths [1].
+
+In Nigeria, an estimated 1.7 million people were living with HIV in 2020, with over 86,000 people newly infected. Although the global rates of HIV have remained consistent over time, Nigeria has the second-highest number of people living with HIV and contributes to 9% of the global burden of HIV/AIDS [2]. Despite progress in treatment and prevention through antiretroviral therapy (ART), public health campaigns, and international support, the fight against the epidemic remains hindered by misconceptions, stigma, and gaps in knowledge.
 
 This project explores data from the 2018 Demographic and Health Survey (DHS) by the Nigeria Population Commission to assess the knowledge, awareness, and social attitudes toward HIV among a representative population sample. Using a selection of variables related to HIV awareness and prevention, transmission myths, stigma, and mother-to-child transmission, the goal is to uncover insights into how informed the population is, where misinformation still exists, and what attitudes may create barriers to effective prevention and care.
 
@@ -458,7 +460,7 @@ However, persistent misconceptions about HIV transmission — including beliefs 
 
 Altogether, these findings emphasize that addressing HIV in the population requires more than just disseminating information. Closing the gap between knowledge and behavior will demand culturally resonant, targeted health messaging; integration of accurate HIV education at all schooling levels; community engagement to dismantle stigma; and policies that support equitable access to HIV testing, prevention, and treatment. Through the connection of improved knowledge with active stigma reduction and stronger health systems, stakeholders can better empower communities to protect themselves, support each other, and ultimately reduce the burden of HIV.
 
-# Acknowledgements 🙏
+# Acknowledgements 
 
 This capstone project was completed as part of the Biological Weapons Convention Training in R programming for Outbreak Analytics and Disease Surveillance, facilitated by the Global Research and Analyses for Public Health (GRAPH) Network of the Institute of Global Health, University of Geneva.
 
@@ -466,7 +468,7 @@ I am deeply grateful for the opportunity to participate in this training, which 
 
 # References
 
-{1] Amuche, N. J., Emmanuel, E. I., & Innocent, N. E. (2017). HIV/AIDS in sub-Saharan Africa: current status, challenges and prospects. *Asian Pacific Journal of Tropical Disease*, 7(4), 239-256.
+[1] Amuche, N. J., Emmanuel, E. I., & Innocent, N. E. (2017). HIV/AIDS in sub-Saharan Africa: current status, challenges and prospects. *Asian Pacific Journal of Tropical Disease*, 7(4), 239-256.
 
 [2] Bolarinwa, O. A., Ajayi, K. V., & Sah, R. K. (2022). Association between knowledge of Human Immunodeficiency Virus transmission and consistent condom use among sexually active men in Nigeria: An analysis of 2018 Nigeria Demographic Health Survey. *PLOS Global Public Health*, 2(3), e0000223.
 
